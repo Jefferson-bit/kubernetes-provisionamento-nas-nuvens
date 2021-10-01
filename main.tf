@@ -6,15 +6,15 @@ resource "random_string" "random" {
 }
 
 resource "docker_image" "docusaurus-zup" {
-  name = "public.ecr.aws/zup-academy/docusaurus-zup:latest"
+  name = lookup(var.image, terraform.workspace)
 }
 
 resource "docker_container" "docusaurus-zup" {
   count = local.container_count
-  name  = join("-", ["docusaurus-zup", random_string.random[count.index].result])
+  name  = join("-", ["docusaurus-zup", terraform.workspace, random_string.random[count.index].result])
   image = docker_image.docusaurus-zup.latest
   ports {
     internal = var.internal_port
-    external = var.external_port[count.index]
+    external = lookup(var.external_port, terraform.workspace)[count.index]
   }
 }
