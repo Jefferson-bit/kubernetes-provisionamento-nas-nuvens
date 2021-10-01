@@ -11,8 +11,23 @@ provider "docker" {
   host = "npipe:////.//pipe//docker_engine"
 }
 
+variable "container_count" {
+  type        = number
+  default     = 1
+}
+
+variable "external_port" {
+  type        = number
+  default     = 3000
+}
+
+variable "internal_port" {
+  type        = number
+  default     = 3000
+}
+
 resource "random_string" "random" {
-  count = 2
+  count = var.container_count
   length  = 6
   special = false
   upper   = false
@@ -23,11 +38,12 @@ resource "docker_image" "docusaurus-zup" {
 }
 
 resource "docker_container" "docusaurus-zup" {
-  count = 2
+  count = var.container_count
   name  = join( "-", ["docusaurus-zup", random_string.random[count.index].result])
   image = docker_image.docusaurus-zup.latest
   ports {
-    internal = 3000
+    internal = var.internal_port
+    external = var.external_port
   }
 }
 
