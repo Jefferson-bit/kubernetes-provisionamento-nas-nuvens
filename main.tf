@@ -2,14 +2,13 @@ terraform {
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
-      version = "2.14.0"
+      version = "2.15.0"
     }
   }
 }
 
 provider "docker" {
-  version = "~> 2.7"
-  host    = "npipe:////.//pipe//docker_engine"
+  host = "npipe:////.//pipe//docker_engine"
 }
 
 resource "docker_image" "docusaurus-zup" {
@@ -22,4 +21,12 @@ resource "docker_container" "docusaurus-zup" {
   ports{
     internal = 3000
   }
+}
+
+output "container_name" {
+  value = docker_container.docusaurus-zup.name
+}
+
+output "ip_address" {
+  value = join(":", [docker_container.docusaurus-zup.ip_address, docker_container.docusaurus-zup.ports[0].external])
 }
