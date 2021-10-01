@@ -6,18 +6,18 @@ resource "random_string" "random" {
 }
 
 module "image" {
-  source = "./image"
+  source       = "./image"
   image_stored = var.image[terraform.workspace]
 
 }
 
-resource "docker_container" "docusaurus-zup" {
-  count = local.container_count
-  name  = join("-", ["docusaurus-zup", terraform.workspace, random_string.random[count.index].result])
-  image = module.image.image_module
+module "container" {
+  source          = "./container"
+  count           = local.container_count
+  name_stored     = join("-", ["docusaurus-zup", terraform.workspace, random_string.random[count.index].result])
+  image_stored    = module.image.image_module
+  internal_stored = var.internal_port
+  external_stored = lookup(var.external_port, terraform.workspace)[count.index]
 
-  ports {
-    internal = var.internal_port
-    external = lookup(var.external_port, terraform.workspace)[count.index]
-  }
 }
+
